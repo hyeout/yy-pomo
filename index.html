@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tamagotchi Heart Pomo Final v28</title>
+    <title>Tamagotchi Heart Pomo Final v28 - Modified</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@700&display=swap');
         
@@ -31,19 +31,21 @@
             --grid-line: rgba(255, 183, 197, 0.15);
             --tama-shadow: rgba(255, 183, 197, 0.3);
             --font-family: 'DOSIyagiBoldface';
+            /* 설정창 전용 색상 */
+            --settings-blue: #D1E4F7;
+            --settings-border: #A9CBEF;
         }
 
-        /* 반응형 스케일링 핵심 */
         html, body {
             margin: 0; padding: 0; width: 100%; height: 100%;
             display: flex; justify-content: center; align-items: center;
             background-color: transparent;
             overflow: hidden; user-select: none;
-            font-size: 3.125vw; /* 화면 너비의 약 1/32를 1em으로 설정 */
+            font-size: 3.125vw;
         }
 
         @media (min-width: 320px) {
-            body { font-size: 10px; } /* 최대 크기 고정 */
+            body { font-size: 10px; }
         }
 
         .widget-container {
@@ -96,7 +98,6 @@
 
         .tamagotchi-controls { display: flex; gap: 0.8em; margin-top: 0.3em; }
         .cyl-btn {
-            width: 32px; height: 18px; /* 크기 줄어들 때 버튼 깨짐 방지를 위해 px 유지하되 컨테이너 내부에 고정 */
             width: 3.2em; height: 1.8em;
             background: #fff; border: 0.15em solid var(--color-line);
             border-radius: 0.9em; cursor: pointer; transition: transform 0.1s;
@@ -105,25 +106,41 @@
             box-shadow: inset 0 -0.2em 0 var(--tama-shadow);
         }
         .cyl-btn:active { transform: scale(0.9); }
-        .cyl-btn:hover { background: var(--color-bg); }
 
-        /* 설정창 스타일 - em 단위로 변경하여 전체 스케일링 대응 */
+        /* --- [설정창 스타일 변경] --- */
         #settings {
             width: 19.5em; 
-            background: #fff; border: 0.15em solid var(--color-line);
-            border-radius: 1.2em; display: none; position: absolute; z-index: 100;
-            padding: 0; font-size: 1.1em; box-shadow: 0 0.4em 2em rgba(0,0,0,0.15);
-            text-align: center; cursor: grab;
-            /* 튕김 원인이었던 transform 제거 */
+            background: #fff; border: 0.15em solid var(--settings-border);
+            border-radius: 0.8em; display: none; position: absolute; z-index: 100;
+            padding: 0; font-size: 1.1em; box-shadow: 0 0.4em 2em rgba(0,0,0,0.1);
+            text-align: left; cursor: grab; overflow: hidden;
             transform: none; 
         }
         #settings:active { cursor: grabbing; }
 
         .settings-header {
-            background: var(--color-bg); padding: 0.8em; font-weight: bold;
-            color: var(--color-line); border-bottom: 0.1em dashed var(--color-line);
-            border-radius: 1.1em 1.1em 0 0; pointer-events: none; 
+            background: var(--settings-blue); padding: 0.5em 0.7em; 
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 0.12em solid var(--settings-border);
         }
+
+        .header-title-area {
+            display: flex; align-items: center; gap: 0.4em;
+            color: #fff; font-family: 'Noto Sans KR', sans-serif; font-size: 1em;
+        }
+        
+        .header-heart { font-size: 1.2em; filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.1)); }
+
+        .header-close-btn {
+            width: 1.6em; height: 1.6em; background: #fff;
+            border: 0.12em solid var(--settings-border); border-radius: 0.2em;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; pointer-events: auto;
+        }
+        .header-close-btn::after {
+            content: '✕'; color: var(--settings-border); font-size: 0.8em; font-weight: bold;
+        }
+        .header-close-btn:hover { background: #f0f0f0; }
 
         .settings-content { padding: 1.5em 1.2em; }
         .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1em; margin-bottom: 1.5em; justify-items: center; }
@@ -133,13 +150,9 @@
         }
         .theme-preview { width: 1.8em; height: 1.8em; border-radius: 50%; border: 0.1em solid rgba(0,0,0,0.05); }
         .s-item { display: flex; justify-content: center; margin-bottom: 1em; align-items: center; gap: 1.2em; }
-        .s-item label { width: 4.5em; text-align: right; font-weight: bold; color: #555; }
-        input[type="color"], select, .s-close { cursor: pointer; }
+        .s-item label { width: 4.5em; text-align: right; font-weight: bold; color: #555; font-size: 0.9em;}
         select { font-size: 0.9em; padding: 0.2em; border: 0.1em solid #ddd; border-radius: 0.4em; width: 10em; }
-        .s-close { 
-            width: 100%; margin-top: 0.5em; font-size: 0.9em; border: 0.15em solid var(--color-line); 
-            background: var(--color-bg); color: var(--color-line); border-radius: 0.5em; padding: 0.7em; font-weight: bold;
-        }
+        
     </style>
 </head>
 <body>
@@ -171,7 +184,13 @@
         </div>
         
         <div id="settings">
-            <div class="settings-header">Settings</div>
+            <div class="settings-header">
+                <div class="header-title-area">
+                    <span class="header-heart">❤</span>
+                    <span>Settings</span>
+                </div>
+                <div class="header-close-btn" onclick="toggleSet()"></div>
+            </div>
             <div class="settings-content">
                 <div class="theme-grid">
                     <div class="theme-btn" onclick="setTheme('#FFB7C5', '#FFF0F5')"><div class="theme-preview" style="background: #FFB7C5;"></div></div>
@@ -190,7 +209,6 @@
                         <option value="Cafe24PROUP">카페24 프라우드</option>
                     </select>
                 </div>
-                <button class="s-close" onclick="toggleSet()">CLOSE</button>
             </div>
         </div>
     </div>
@@ -213,11 +231,9 @@
     
     function toggleSet() { 
         const s = document.getElementById('settings'); 
-        const container = document.querySelector('.widget-container');
         if(s.style.display === 'block') { s.style.display = 'none'; } 
         else {
             s.style.display = 'block';
-            // 고정 px 대신 컨테이너 크기 비례 em 좌표로 초기화 (튕김 원인 제거)
             s.style.left = '6em'; 
             s.style.top = '4em';
         }
@@ -244,20 +260,20 @@
     document.getElementById('setLine').addEventListener('input', (e) => { cfg.line = e.target.value; apply(); });
     document.getElementById('setBg').addEventListener('input', (e) => { cfg.bg = e.target.value; apply(); });
     
-    // --- [개선된 델타 이동 드래그 로직] ---
+    // 드래그 로직 (상단바 포함 전체 드래그 가능)
     const dragPanel = document.getElementById('settings'); 
     let isDragging = false; let startX, startY, startLeft, startTop;
 
     dragPanel.addEventListener('mousedown', (e) => {
-        const tags = ['INPUT', 'SELECT', 'OPTION', 'BUTTON', 'DIV.theme-btn', 'DIV.theme-preview'];
-        if (tags.includes(e.target.tagName) || e.target.closest('.theme-btn')) return;
+        // 입력창이나 버튼을 클릭했을 때는 드래그 방지
+        const tags = ['INPUT', 'SELECT', 'OPTION', 'BUTTON', 'DIV.theme-btn', 'DIV.theme-preview', 'DIV.header-close-btn'];
+        if (tags.includes(e.target.tagName) || e.target.closest('.theme-btn') || e.target.closest('.header-close-btn')) return;
 
         isDragging = true;
         startX = e.clientX;
         startY = e.clientY;
         startLeft = dragPanel.offsetLeft;
         startTop = dragPanel.offsetTop;
-        
         e.preventDefault();
     });
 
@@ -265,7 +281,6 @@
         if (!isDragging) return; 
         const dx = e.clientX - startX;
         const dy = e.clientY - startY;
-        // transform 없이 left/top 값만으로 이동하여 튕김 현상 원천 차단
         dragPanel.style.left = (startLeft + dx) + 'px'; 
         dragPanel.style.top = (startTop + dy) + 'px'; 
     });
